@@ -25,6 +25,7 @@ private:
 
     G4NistManager*      nist;
     G4Material*         world_mat;
+    G4Material*         water_mat;
 
     G4VPhysicalVolume *Construct() override;
 
