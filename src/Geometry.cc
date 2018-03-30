@@ -36,27 +36,37 @@ G4VPhysicalVolume* Geometry::Construct() {
     world_log->SetVisAttributes(G4VisAttributes::Invisible);
     world_VP = new G4PVPlacement(nullptr, G4ThreeVector(), world_log, "world_PV", nullptr, false, 0);
 
-    G4Tubs* water = new G4Tubs("tube",3*cm,10*cm,40/2*cm,0,270*deg);
-    G4LogicalVolume * water_log = new G4LogicalVolume(water,water_mat,"water_log");
-    water_log->SetVisAttributes(G4Colour::Blue());
-    new G4PVPlacement(new G4RotationMatrix(0, 45*deg, 0),G4ThreeVector(5*m,0,0),water_log,"water_PVP",world_log,false,0);
+    std:: ofstream fout("../result.txt");
 
-    auto Box  = new G4Box("box", 2*m, 2*m, 2*m );
-    auto Box_log = new G4LogicalVolume(Box, water_mat, "box_log");
-    Box_log->SetVisAttributes(G4Colour::Cyan());
-    auto Box_PV = new G4PVPlacement(0, G4ThreeVector(), Box_log, "Box_PV", world_log, false,0);
+    G4Material* NaI = nist -> FindOrBuildMaterial("G4_SODIUM_IODIDE");
+    fout << "For material" << NaI-> GetName() << " :" << G4endl;
+    for (unsigned int i=0; i< static_cast<unsigned int>(NaI->GetNumberOfElements()); i++) {
+        fout << "Element:" << NaI -> GetElement(i) -> GetName() <<
+                                                                  "| Atoms:" << NaI -> GetAtomsVector()[i] << G4endl;
+    }
+
+//    fout << '\n' << NaI << '\n';
+    fout << nist -> FindOrBuildMaterial("G4_SODIUM_IODIDE");
+    fout << nist -> FindOrBuildMaterial("G4_WATER");
+
+    G4Isotope *u235 = new G4Isotope("U235", 92, 235, 235.044*g/mole);
+    G4Isotope *u238 = new G4Isotope("U238", 92, 238, 238.051*g/mole);
+
+    G4Element *enrichedU = new G4Element("enrichedU", "U", 2);
+    enrichedU -> AddIsotope(u235, 5.0* perCent);
+    enrichedU -> AddIsotope(u238, 95.0* perCent);
+    G4Element *elF = new G4Element("Fluorine", "F", 9., 18.998*g/mole);
+
+    G4Material *fuel = new G4Material("NuclearFuel", 5.09*g/cm3, 2, kStateSolid, 640*kelvin, 1.5e7*pascal);
+
+    fuel -> AddElement(elF,6);
+    fuel -> AddElement(enrichedU,1);
+
+    fout << fuel << G4endl;
 
 
-    auto Box1  = new G4Box("box1", 1*m, 1*m, 1*m );
-    auto Box1_log = new G4LogicalVolume(Box1, water_mat, "box1_log");
-    Box1_log->SetVisAttributes(G4Colour::Red());
-    auto Box1_PV = new G4PVPlacement(0, G4ThreeVector(0,3*m, 0), Box1_log, "Box1_PV", world_log, false,0);
 
 
-    auto Box2  = new G4Box("box2", 1*m, 1*m, 1*m );
-    auto Box2_log = new G4LogicalVolume(Box2, water_mat, "box2_log");
-    Box2_log->SetVisAttributes(G4Colour::Black());
-    auto Box2_PV = new G4PVPlacement(0, G4ThreeVector(-3*m,0, 0), Box2_log, "Box2_PV", world_log, false,0);
 
 
 
